@@ -1,0 +1,138 @@
+-- Borrar tablas si existen
+DROP TABLE IF EXISTS notf_pers;
+DROP TABLE IF EXISTS notificacion;
+DROP TABLE IF EXISTS mantenimiento;
+DROP TABLE IF EXISTS geolocalizacion;
+DROP TABLE IF EXISTS tipo_vehiculo;
+DROP TABLE IF EXISTS rol;
+DROP TABLE IF EXISTS rpto_mtto;
+DROP TABLE IF EXISTS repuesto;
+DROP TABLE IF EXISTS proveedor;
+DROP TABLE IF EXISTS personal;
+DROP TABLE IF EXISTS incidencia;
+DROP TABLE IF EXISTS vehiculo;
+
+-- Creación de la tabla tipo_vehiculo
+CREATE TABLE tipo_vehiculo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_vehiculo VARCHAR(50),
+    descripcion VARCHAR(50)
+);
+
+-- Creación de la tabla geolocalizacion
+CREATE TABLE geolocalizacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    geolocalizacion VARCHAR(50),
+    velocidad FLOAT,
+    direccion VARCHAR(50)
+);
+
+-- Creación de la tabla proveedor
+CREATE TABLE proveedor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    rut INT(10),
+    telefono INT(10),
+    direccion VARCHAR(50),
+    email VARCHAR(50)
+);
+
+-- Creación de la tabla rol
+CREATE TABLE rol (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cargo VARCHAR(50),
+    descripcion VARCHAR(50)
+);
+
+-- Creación de la tabla personal
+CREATE TABLE personal (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    rut INT,
+    nombre VARCHAR(50),
+    apellido_p VARCHAR(50),
+    apellido_m VARCHAR(50),
+    usuario VARCHAR(50),
+    contraseña VARCHAR(50),
+    rol_id INT,
+    FOREIGN KEY (rol_id) REFERENCES rol(id)
+);
+
+-- Creación de la tabla mantenimiento
+CREATE TABLE mantenimiento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_mantenimiento VARCHAR(50),
+    fecha DATE,
+    notas VARCHAR(60),
+    costo FLOAT,
+    personal_id INT,  -- Ahora la clave externa apunta a personal
+    FOREIGN KEY (personal_id) REFERENCES personal(id)
+);
+
+-- Creación de la tabla vehiculo
+CREATE TABLE vehiculo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    numero_ppu VARCHAR(6),
+    marca VARCHAR(50),
+    modelo VARCHAR(50),
+    num_chasis INT(30),
+    ano_fabricacion DATE,
+    kilometraje FLOAT,
+    fecha_adquisicion DATE,
+    tipo_vehiculo_id INT,
+    geolocalizacion_id INT,
+    mantenimiento_id INT,
+    personal_id INT,
+    FOREIGN KEY (tipo_vehiculo_id) REFERENCES tipo_vehiculo(id),
+    FOREIGN KEY (geolocalizacion_id) REFERENCES geolocalizacion(id),
+    FOREIGN KEY (mantenimiento_id) REFERENCES mantenimiento(id),
+    FOREIGN KEY (personal_id) REFERENCES personal(id)
+);
+
+-- Creación de la tabla repuesto
+CREATE TABLE repuesto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    marca VARCHAR(50),
+    modelo VARCHAR(50),
+    precio FLOAT,
+    proveedor_id INT,
+    FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
+);
+
+-- Creación de la tabla incidencia
+CREATE TABLE incidencia (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE,
+    tipo_incidencia VARCHAR(50),
+    estado_incidencia VARCHAR(50),
+    comentario VARCHAR(50),
+    vehiculo_id INT,
+    FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id)
+);
+
+-- Creación de la tabla notificacion
+CREATE TABLE notificacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE,
+    comentario VARCHAR(50),
+    incidencia_id INT,
+    FOREIGN KEY (incidencia_id) REFERENCES incidencia(id)
+);
+
+-- Creación de la tabla notf_pers
+CREATE TABLE notf_pers (
+    notificacion_id INT,
+    personal_id INT,
+    PRIMARY KEY (notificacion_id, personal_id),
+    FOREIGN KEY (notificacion_id) REFERENCES notificacion(id),
+    FOREIGN KEY (personal_id) REFERENCES personal(id)
+);
+
+-- Creación de la tabla rpto_mtto
+CREATE TABLE rpto_mtto (
+    repuesto_id INT,
+    mantenimiento_id INT,
+    PRIMARY KEY (repuesto_id, mantenimiento_id),
+    FOREIGN KEY (repuesto_id) REFERENCES repuesto(id),
+    FOREIGN KEY (mantenimiento_id) REFERENCES mantenimiento(id)
+);
